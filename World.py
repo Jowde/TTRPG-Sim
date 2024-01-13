@@ -4,8 +4,8 @@ from tile import Tile
 def generate(size: int,seed)->list:
     world_template = world_template_generate(size,seed)
     world = tile_placer(world_template, size)
-    
-    return map
+    print(world_template)
+    return world
 
 
 def world_template_generate(size: int, seed: int)->list:
