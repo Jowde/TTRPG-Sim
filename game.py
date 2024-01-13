@@ -3,7 +3,7 @@ import World
 class Game:
     def __init__(self) -> None:
         
-        self.map = World.generate(100)
+        self.map = World.generate(100, 12345)
         
         pygame.init()
         self.screen = pygame.display.set_mode((1280, 720))
