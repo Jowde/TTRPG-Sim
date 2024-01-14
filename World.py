@@ -4,7 +4,6 @@ from tile import Tile
 def generate(size: int,seed)->list:
     world_template = world_template_generate(size,seed)
     world = tile_placer(world_template, size)
-    print(world_template)
     return world
 
 
@@ -15,13 +14,14 @@ def world_template_generate(size: int, seed: int)->list:
     
     rng = np.random.default_rng(seed)
     
+    
     start_y = rng.integers(0,size)
     start_x = rng.integers(0,size)
     world_template[start_y][start_x]=1
     
     
     count=0
-    while count<size:
+    while count<size/5:
         count+=1
         for y in range(len(world_template)):
             for x in range(len(world_template)):
