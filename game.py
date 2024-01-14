@@ -3,11 +3,13 @@ import World
 
 
 SCREENSIZE = (720, 720)
-MOVESPEED = 1
+MOVESPEED = 4
+WORLDSIZE = 100
+SEED = 12345
 class Game:
     def __init__(self) -> None:
         
-        self.world = World.generate(200, 12345)
+        self.world = World.generate(WORLDSIZE, SEED)
         
         pygame.init()
         
@@ -44,7 +46,7 @@ class Game:
                 if keys[pygame.K_DOWN] and self.current_position[1]+SCREENSIZE[1]//self.pixel_size<len(self.world):
                     self.current_position[1] += MOVESPEED
                     
-                if keys[pygame.K_MINUS] and self.pixel_size>12:
+                if keys[pygame.K_MINUS] and self.pixel_size>4:
                     self.pixel_size -=4
                     self.fix_current_pos()
                     

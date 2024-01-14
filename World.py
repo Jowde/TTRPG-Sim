@@ -1,58 +1,38 @@
 import numpy as np
 from tile import Tile
+from scipy.ndimage.interpolation import zoom
 
 def generate(size: int,seed)->list:
     world_template = world_template_generate(size,seed)
-    world = tile_placer(world_template, size)
+    world = tile_placer(world_template)
     return world
 
 
 def world_template_generate(size: int, seed: int)->list:
     
-    world_template = np.zeros(size**2)
-    world_template.shape = (size,size)
     
     rng = np.random.default_rng(seed)
     
+    world_template = rng.uniform(size=(size//2,size//2))
     
-    start_y = rng.integers(0,size)
-    start_x = rng.integers(0,size)
-    world_template[start_y][start_x]=1
+    world_template = np.pad(world_template, pad_width=1,mode='constant')
     
-    
-    count=0
-    while count<size/5:
-        count+=1
-        for y in range(len(world_template)):
-            for x in range(len(world_template)):
-                if x+1 < size and y+1 < size and y>0 and x>0:
-                    if world_template[y][x-1]==1:
-                        world_template[y][x]=1
-                        
-                    elif world_template[y][x+1]==1:
-                        world_template[y][x]=1
-                        
-                    elif world_template[y-1][x]==1:
-                        world_template[y][x]=1
-                        
-                    elif world_template[y+1][x]==1:
-                        world_template[y][x]=1
-                
-                    
-    
+    world_template = zoom(world_template, 12)
     
     return world_template
-    
-    
-def tile_placer(world_template: list, size:int):
+
+
+            
+            
+def tile_placer(world_template: list):
     
     world = []
     
     
-    for y in range(size):
+    for y in range(len(world_template)):
         world.append([])
-        for x in range(size):
-            if world_template[y][x]==1:
+        for x in range(len(world_template)):
+            if world_template[y][x]>.3:
                 world[y].append(Tile("grass", (x,y)))
             else:
                 world[y].append(Tile("water", (x,y)))
