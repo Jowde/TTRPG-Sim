@@ -13,11 +13,11 @@ def world_template_generate(size: int, seed: int)->list:
     
     rng = np.random.default_rng(seed)
     
-    world_template = rng.uniform(size=(size//2,size//2))
+    world_template = rng.uniform(size=(size//8,size//8))
     
     world_template = np.pad(world_template, pad_width=1,mode='constant')
     
-    world_template = zoom(world_template, 12)
+    world_template = zoom(world_template, 8)
     
     return world_template
 
@@ -32,10 +32,11 @@ def tile_placer(world_template: list):
     for y in range(len(world_template)):
         world.append([])
         for x in range(len(world_template)):
-            if world_template[y][x]>.3:
-                world[y].append(Tile("grass", (x,y)))
+            print(world_template[y][x])
+            if world_template[y][x]>.4:
+                world[y].append(Tile("grass", (x,y), world_template[y][x] if world_template[y][x]<1 else 1))
             else:
-                world[y].append(Tile("water", (x,y)))
+                world[y].append(Tile("water", (x,y), world_template[y][x] if world_template[y][x]<1 else 1))
                 
     return world
             
