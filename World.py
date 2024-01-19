@@ -1,42 +1,59 @@
 import numpy as np
 from tile import Tile
 from scipy.ndimage.interpolation import zoom
+class World:
+    
+    def __init__(self, size: int, seed: int):
+        self.size =size
+        self.rng = np.random.default_rng(seed)
+        
+        self.info = self.generate()
+        
+    
+    def generate(self)->list:
+        world_template = self.world_template_generate()
+        world = self.tile_placer(world_template)
+        return world
 
-def generate(size: int,seed)->list:
-    world_template = world_template_generate(size,seed)
-    world = tile_placer(world_template)
-    return world
-
-
-def world_template_generate(size: int, seed: int)->list:
-    
-    
-    rng = np.random.default_rng(seed)
-    
-    world_template = rng.uniform(size=(size//8,size//8))
-    
-    world_template = np.pad(world_template, pad_width=1,mode='constant')
-    
-    world_template = zoom(world_template, 8)
-    
-    return world_template
-
-
+    def get_valid_spawn(self):
+        while True:
+            x, y = int(self.rng.random() * len(self.info)),int(self.rng.random() *len(self.info))
+            if self.info[y][x].name == "grass" and (not self.info[y][x].isOccupied()):
+                return x, y
+    def moveCreature(self, x, y, Creature):
+        if self.info[y][x].name == "grass" and (not self.info[y][x].isOccupied()):
+            self.info[y][x].addCreature(Creature)
+            self.info[Creature.y][Creature.x].removeCreature()
+            return True
+        return False
             
             
-def tile_placer(world_template: list):
-    
-    world = []
-    
-    
-    for y in range(len(world_template)):
-        world.append([])
-        for x in range(len(world_template)):
-            print(world_template[y][x])
-            if world_template[y][x]>.4:
-                world[y].append(Tile("grass", (x,y), world_template[y][x] if world_template[y][x]<1 else 1))
-            else:
-                world[y].append(Tile("water", (x,y), world_template[y][x] if world_template[y][x]<1 else 1))
                 
-    return world
+    def world_template_generate(self)->list:
+        world_template = self.rng.uniform(low=0, high=1.0, size=(self.size//8,self.size//8))
+        
+        world_template = np.pad(world_template, pad_width=1,mode='constant',constant_values=[0])
+        
+        world_template = zoom(world_template, 8)
+        
+        return world_template
+
+
+                
+                
+    def tile_placer(self, world_template: list):
+        
+        world = []
+        
+        
+        for y in range(len(world_template)):
+            world.append([])
+            for x in range(len(world_template)):
+                
+                if world_template[y][x]>.4:
+                    world[y].append(Tile("grass", (x,y), 2*abs(world_template[y][x])-.3 ) )
+                else:
+                    world[y].append(Tile("water", (x,y), (abs(world_template[y][x]))+.6 ) )
+                    
+        return world
             

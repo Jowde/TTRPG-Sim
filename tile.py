@@ -3,7 +3,7 @@ class Tile:
         self.name=name
         self.coords = coords
         self.color_percent = color_percent
-        
+        self.creature = None
         
     @property
     def name(self):
@@ -25,6 +25,15 @@ class Tile:
     @color_percent.setter
     def color_percent(self,value):
         self._color_percent=value
+    
+    def addCreature(self, value):
+        self.creature = value
         
-        
+    def removeCreature(self):
+        self.creature = None
+    
+    def isOccupied(self):
+        if self.creature == None:
+            return False
+        return True
         
