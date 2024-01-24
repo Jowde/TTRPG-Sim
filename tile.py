@@ -26,10 +26,10 @@ class Tile:
     def color_percent(self,value):
         self._color_percent=value
     
-    def addCreature(self, value):
+    def add_creature(self, value):
         self.creature = value
         
-    def removeCreature(self):
+    def remove_creature(self):
         self.creature = None
     
     def isOccupied(self):

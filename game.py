@@ -2,7 +2,7 @@ import pygame
 from world import World
 from creature import Creature
 
-DEFAULT_SCREEN_SIZE = (720, 720)
+DEFAULT_SCREEN_SIZE = (900, 900)
 MOVE_SPEED = 4
 WORLD_SIZE = 100
 SEED = 823432145956
@@ -14,8 +14,8 @@ class Game:
         # Initialize the game
         self.world = World(WORLD_SIZE, SEED)
         self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i+1}", SEED) for i in range(NUM_CREATURES)]
-        for i, creature in enumerate(self.creatures):
-            self.world.info[creature.y][creature.x].addCreature(creature)
+        for creature in self.creatures:
+            self.world.info[creature.y][creature.x].add_creature(creature)
 
         self.current_position = [0, 0]
         self.pause = False
@@ -35,8 +35,9 @@ class Game:
         while self.running:
             # Main game loop
             screen_size = self.screen.get_size()
-
-            self.gameloop()
+            
+            if self.pause:
+                self.gameloop()
 
             for event in pygame.event.get():
                 self.user_input(event, screen_size)
@@ -45,7 +46,10 @@ class Game:
             self.screen.fill((0, 0, 0))
 
             # Render the game
-            self.draw_world(screen_size)
+            
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pos = (mouse_pos[0]//self.pixel_size + self.current_position[0], mouse_pos[1]//self.pixel_size + self.current_position[1])
+            self.draw_world(screen_size, mouse_pos)
 
             # Update the display
             pygame.display.flip()
@@ -59,19 +63,22 @@ class Game:
         if event.type == pygame.QUIT:
             self.running = False
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
+        keys = event.key
+        
+        
+        self.handle_hotkeys(keys)
+        
+        # Handle Camera Movement
+        self.handle_camera_movement(keys, screen_size)
+
+        # Handles Zoom in and out
+        self.handle_zoom(keys, screen_size)
+
+
+    def handle_hotkeys(self,keys):
+        if keys[pygame.K_0]:
             self.pause = not self.pause
-
-        if self.pause:
-            self.running = False
-        else:
-            # Handle Camera Movement
-            self.handle_camera_movement(keys, screen_size)
-
-            # Handles Zoom in and out
-            self.handle_zoom(keys, screen_size)
-
+            
     def handle_camera_movement(self, keys, screen_size):
         # Handle camera movement based on arrow keys
         if keys[pygame.K_LEFT] and self.current_position[0] > 0:
@@ -92,10 +99,10 @@ class Game:
             self.pixel_size -= 4
             self.fix_current_pos(screen_size)
 
-        if keys[pygame.K_EQUALS] and self.pixel_size < 32:
+        if keys[pygame.K_EQUALS] and self.pixel_size < 24:
             self.pixel_size += 4
 
-    def draw_world(self, screen_size):
+    def draw_world(self, screen_size, mouse_pos):
         # Draw the world based on the current camera position and pixel size
         for y in range(self.current_position[1], screen_size[1] // self.pixel_size + self.current_position[1]):
             for x in range(self.current_position[0], screen_size[0] // self.pixel_size + self.current_position[0]):
@@ -103,11 +110,13 @@ class Game:
                     tile_color = CREATURE_COLOR
                 else:
                     tile_color = self.get_tile_color(x, y)
-                        
+                    
+                if mouse_pos == (x,y):
+                    tile_color = self.highlight_color(tile_color)
+                       
                 tile = pygame.Rect(((x - self.current_position[0]) * self.pixel_size,
                                     (y - self.current_position[1]) * self.pixel_size),
                                    (self.pixel_size, self.pixel_size))
-                
                 pygame.draw.rect(self.screen, tile_color, rect=tile)
 
     def get_tile_color(self, x, y):
@@ -117,7 +126,10 @@ class Game:
             return (0, int(255 * tile_info.color_percent), 0) if tile_info.color_percent < 0.75 else (0, int(255 * 0.75), 0)
         else:
             return (0, 0, int(255 * tile_info.color_percent)) if tile_info.color_percent < 0.75 else (0, 0, int(255 * 0.75))
-
+        
+    def highlight_color(self, color):
+        return (color[0]+50 if color[0]+50 <=255 else 255, color[1]+50 if color[1]+50 <=255 else 255, color[2]+50 if color[2]+50 <=255 else 255)
+    
     def fix_current_pos(self, screen_size):
         # Fix current position to ensure it is within valid bounds
         while screen_size[1] // self.pixel_size + self.current_position[1] > len(self.world.info):
@@ -129,5 +141,5 @@ class Game:
         #Main game logic
         for creature in self.creatures:
             new_x, new_y = creature.wander()
-            if self.world.moveCreature(new_x, new_y, creature):
+            if self.world.move_creature(new_x, new_y, creature):
                 creature.changeCoords(new_x, new_y)
