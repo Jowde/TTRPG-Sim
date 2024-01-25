@@ -2,7 +2,7 @@ import pygame
 from world import World
 from creature import Creature
 
-DEFAULT_SCREEN_SIZE = (900, 900)
+DEFAULT_SCREEN_SIZE = (720, 720)
 MOVE_SPEED = 4
 WORLD_SIZE = 100
 SEED = 823432145956
@@ -63,43 +63,46 @@ class Game:
         if event.type == pygame.QUIT:
             self.running = False
 
-        keys = event.key
         
-        
-        self.handle_hotkeys(keys)
-        
-        # Handle Camera Movement
-        self.handle_camera_movement(keys, screen_size)
+        if event.type == pygame.KEYDOWN:
+            self.handle_hotkeys(event)
+            
+            # Handle Camera Movement
+            self.handle_camera_movement(event, screen_size)
 
-        # Handles Zoom in and out
-        self.handle_zoom(keys, screen_size)
+            # Handles Zoom in and out
+            self.handle_zoom(event, screen_size)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            print(self.world.info[pos[1]//self.pixel_size +self.current_position[1]][pos[0]//self.pixel_size +self.current_position[0]])
+              
+            
 
-
-    def handle_hotkeys(self,keys):
-        if keys[pygame.K_0]:
+    def handle_hotkeys(self, event):
+        if event.key == pygame.K_p:
             self.pause = not self.pause
             
-    def handle_camera_movement(self, keys, screen_size):
+    def handle_camera_movement(self, event, screen_size):
         # Handle camera movement based on arrow keys
-        if keys[pygame.K_LEFT] and self.current_position[0] > 0:
+        if event.key == pygame.K_LEFT and self.current_position[0] > 0:
             self.current_position[0] -= MOVE_SPEED
 
-        if keys[pygame.K_RIGHT] and self.current_position[0] + MOVE_SPEED + screen_size[0] // self.pixel_size < len(self.world.info):
+        if event.key == pygame.K_RIGHT and self.current_position[0] + MOVE_SPEED + screen_size[0] // self.pixel_size < len(self.world.info):
             self.current_position[0] += MOVE_SPEED
 
-        if keys[pygame.K_UP] and self.current_position[1] > 0:
+        if event.key == pygame.K_UP and self.current_position[1] > 0:
             self.current_position[1] -= MOVE_SPEED
 
-        if keys[pygame.K_DOWN] and self.current_position[1] + MOVE_SPEED + screen_size[1] // self.pixel_size < len(self.world.info):
+        if event.key == pygame.K_DOWN and self.current_position[1] + MOVE_SPEED + screen_size[1] // self.pixel_size < len(self.world.info):
             self.current_position[1] += MOVE_SPEED
 
-    def handle_zoom(self, keys, screen_size):
+    def handle_zoom(self, event, screen_size):
         # Handle zoom in and out based on '+' and '-' keys
-        if keys[pygame.K_MINUS] and self.pixel_size > 4 and screen_size[0] // (self.pixel_size - 4) < len(self.world.info):
+        if event.key == pygame.K_MINUS and self.pixel_size > 4 and screen_size[0] // (self.pixel_size - 4) < len(self.world.info):
             self.pixel_size -= 4
             self.fix_current_pos(screen_size)
 
-        if keys[pygame.K_EQUALS] and self.pixel_size < 24:
+        if event.key == pygame.K_EQUALS and self.pixel_size < 24:
             self.pixel_size += 4
 
     def draw_world(self, screen_size, mouse_pos):

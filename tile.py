@@ -36,4 +36,12 @@ class Tile:
         if self.creature == None:
             return False
         return True
+    
+    def __str__(self)->str:
+        response = "="*60
+        response += f"\n\nName: {self.name}\n"
+        response += f"Coords: {self.coords}\n"
+        if self.isOccupied():
+            response +=f"\nCreature info {str(self.creature)} \n"
+        return response
         

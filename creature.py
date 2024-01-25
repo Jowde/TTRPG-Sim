@@ -16,4 +16,11 @@ class Creature:
     
     def changeCoords(self,x,y):
         self.x, self.y = x,y
+        
+    def __str__(self):
+        response = ""
+        response += f"\nName: {self.name}\n"
+        response += f"Coords: {self.x}, {self.y}\n"
+        response += f"Health: {self.health}\n"
+        return response
                   
