@@ -1,7 +1,7 @@
 import pygame
 from world import World
 from creature import Creature
-
+import actions
 DEFAULT_SCREEN_SIZE = (720, 720)
 MOVE_SPEED = 4
 WORLD_SIZE = 100
@@ -13,10 +13,12 @@ class Game:
     def __init__(self) -> None:
         # Initialize the game
         self.world = World(WORLD_SIZE, SEED)
-        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i+1}", SEED) for i in range(NUM_CREATURES)]
+        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i+1}") for i in range(NUM_CREATURES)]
         for creature in self.creatures:
             self.world.info[creature.y][creature.x].add_creature(creature)
 
+        actions.initalize(SEED)
+        
         self.current_position = [0, 0]
         self.pause = False
 
@@ -143,6 +145,8 @@ class Game:
     def gameloop(self):
         #Main game logic
         for creature in self.creatures:
-            new_x, new_y = creature.wander()
-            if self.world.move_creature(new_x, new_y, creature):
-                creature.changeCoords(new_x, new_y)
+            action_name, action_type, content = creature.think()
+            if action_type == "movement" and self.world.move_creature(content[0], content[1], creature):
+                creature.changeCoords(content[0], content[1])
+            elif action_type == "heal":
+                creature.hp = content[0]

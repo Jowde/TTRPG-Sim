@@ -1,15 +1,23 @@
 import random
+import actions
 class Creature:
-    def __init__(self, x: int, y: int, name: str, seed: int):
+    def __init__(self, x: int, y: int, name: str):
         self.x, self.y = x, y
         self.name = name
-        self.health = 100  # Initial health
+        self.max_hp = 10  # Initial health
+        self.hp = 10
+        self.phy_atk = 1
+        self.phy_def = 1
+        self.speed = 1
+        self.energy = 100
         
-    
-    def wander(self):
-            new_x = self.x + random.choice([-1, 0, 1])
-            new_y = self.y + random.choice([-1, 0, 1])
-            return new_x, new_y
+        
+        self.actions = ["wander(self.x,self.y)","heal(self.health)"]
+        
+    def think(self):
+        action_name, action_type, *content = eval("actions." + random.choice(self.actions))
+        print(f"{self.name}: {action_name}")
+        return action_name, action_type, content
         
     def getCoords(self):
         return self.x, self.y
