@@ -1,21 +1,25 @@
 import random
-import actions
+from species import Species
 class Creature:
-    def __init__(self, x: int, y: int, name: str):
+    def __init__(self, x: int, y: int, name: str, species:str, seed: int):
         self.x, self.y = x, y
         self.name = name
-        self.max_hp = 10  # Initial health
-        self.hp = 10
-        self.phy_atk = 1
-        self.phy_def = 1
-        self.speed = 1
-        self.energy = 100
+        self.species = Species[species]
+        
+        self.STR = self.species["STR"]
+        self.DEX = self.species["DEX"]
+        self.CON = self.species["CON"]
+        
+        self.skills = self.species["skills"]
+        self.actions = [skill for skill in self.skills]
         
         
-        self.actions = ["wander(self.x,self.y)","heal(self.health)"]
+        self.rng = random.Random()
+        self.rng.seed(seed)
+        
         
     def think(self):
-        action_name, action_type, *content = eval("actions." + random.choice(self.actions))
+        action_name, action_type, *content = self.wander(self.x, self.y)
         print(f"{self.name}: {action_name}")
         return action_name, action_type, content
         
@@ -25,10 +29,15 @@ class Creature:
     def changeCoords(self,x,y):
         self.x, self.y = x,y
         
+    def wander(self, x:int, y:int):
+        new_x = x + self.rng.choice([-1, 0, 1])
+        new_y = y + self.rng.choice([-1, 0, 1])
+        return "Aimless Wander", "movement", new_x, new_y
+    
     def __str__(self):
         response = ""
         response += f"\nName: {self.name}\n"
         response += f"Coords: {self.x}, {self.y}\n"
-        response += f"Health: {self.health}\n"
+        response += f"Health: {self.hp}\n"
         return response
                   

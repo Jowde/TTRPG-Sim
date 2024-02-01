@@ -1,11 +1,11 @@
 import pygame
 from world import World
 from creature import Creature
-import actions
+
 DEFAULT_SCREEN_SIZE = (720, 720)
 MOVE_SPEED = 4
 WORLD_SIZE = 100
-SEED = 823432145956
+SEED = 987654321
 NUM_CREATURES = 7
 CREATURE_COLOR = (255, 0, 0)
 
@@ -13,11 +13,10 @@ class Game:
     def __init__(self) -> None:
         # Initialize the game
         self.world = World(WORLD_SIZE, SEED)
-        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i+1}") for i in range(NUM_CREATURES)]
+        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i}", "human", SEED//i) for i in range(1,NUM_CREATURES+1)]
         for creature in self.creatures:
             self.world.info[creature.y][creature.x].add_creature(creature)
 
-        actions.initalize(SEED)
         
         self.current_position = [0, 0]
         self.pause = False
@@ -148,5 +147,4 @@ class Game:
             action_name, action_type, content = creature.think()
             if action_type == "movement" and self.world.move_creature(content[0], content[1], creature):
                 creature.changeCoords(content[0], content[1])
-            elif action_type == "heal":
-                creature.hp = content[0]
+            
