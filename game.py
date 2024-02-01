@@ -4,7 +4,7 @@ from creature import Creature
 
 DEFAULT_SCREEN_SIZE = (720, 720)
 MOVE_SPEED = 4
-WORLD_SIZE = 100
+WORLD_SIZE = 120
 SEED = 987654321
 NUM_CREATURES = 7
 CREATURE_COLOR = (255, 0, 0)
@@ -12,10 +12,10 @@ CREATURE_COLOR = (255, 0, 0)
 class Game:
     def __init__(self) -> None:
         # Initialize the game
+        self.pixel_size = 12
         self.world = World(WORLD_SIZE, SEED)
-        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i}", "human", SEED//i) for i in range(1,NUM_CREATURES+1)]
-        for creature in self.creatures:
-            self.world.info[creature.y][creature.x].add_creature(creature)
+        #self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature {i}", "human", SEED//i) for i in range(1,NUM_CREATURES+1)]
+        self.creatures = [Creature(*self.world.get_valid_spawn(), f"Creature", "human", SEED)]
 
         
         self.current_position = [0, 0]
@@ -27,7 +27,7 @@ class Game:
         # self.screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE, pygame.FULLSCREEN)
 
         self.clock = pygame.time.Clock()
-        self.pixel_size = 12
+        
         pygame.display.set_caption("TTRPG-Sim")
 
         self.running = True
@@ -75,7 +75,7 @@ class Game:
             self.handle_zoom(event, screen_size)
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
-            print(self.world.info[pos[1]//self.pixel_size +self.current_position[1]][pos[0]//self.pixel_size +self.current_position[0]])
+            print(self.world.info[pos[1]//self.pixel_size + self.current_position[1]][pos[0]//self.pixel_size +self.current_position[0]])
               
             
 
@@ -110,10 +110,7 @@ class Game:
         # Draw the world based on the current camera position and pixel size
         for y in range(self.current_position[1], screen_size[1] // self.pixel_size + self.current_position[1]):
             for x in range(self.current_position[0], screen_size[0] // self.pixel_size + self.current_position[0]):
-                if self.world.info[y][x].isOccupied():
-                    tile_color = CREATURE_COLOR
-                else:
-                    tile_color = self.get_tile_color(x, y)
+                tile_color = self.get_tile_color(x, y)
                     
                 if mouse_pos == (x,y):
                     tile_color = self.highlight_color(tile_color)
@@ -122,6 +119,15 @@ class Game:
                                     (y - self.current_position[1]) * self.pixel_size),
                                    (self.pixel_size, self.pixel_size))
                 pygame.draw.rect(self.screen, tile_color, rect=tile)
+        for creature in self.creatures:
+            if creature.x //self.pixel_size < screen_size[0] // self.pixel_size + self.current_position[0] and creature.x//self.pixel_size > self.current_position[0]:
+                if creature.y//self.pixel_size  < screen_size[1] // self.pixel_size + self.current_position[1] and creature.y//self.pixel_size  > self.current_position[1]: 
+                    creat = pygame.Rect(
+                                    ((creature.x - self.current_position[0]*self.pixel_size)*(self.pixel_size//12),
+                                    (creature.y - self.current_position[1]*self.pixel_size)*(self.pixel_size)//12),
+                                    (self.pixel_size,self.pixel_size)
+                                    )
+                    pygame.draw.rect(self.screen, CREATURE_COLOR, rect=creat)
 
     def get_tile_color(self, x, y):
         # Get color for non-occupied tiles
@@ -145,6 +151,6 @@ class Game:
         #Main game logic
         for creature in self.creatures:
             action_name, action_type, content = creature.think()
-            if action_type == "movement" and self.world.move_creature(content[0], content[1], creature):
-                creature.changeCoords(content[0], content[1])
+            print(creature.getCoords())
+            
             

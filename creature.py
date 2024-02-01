@@ -19,9 +19,10 @@ class Creature:
         
         
     def think(self):
-        action_name, action_type, *content = self.wander(self.x, self.y)
+        action_name, action_type, *content = self.wander()
         print(f"{self.name}: {action_name}")
         return action_name, action_type, content
+        
         
     def getCoords(self):
         return self.x, self.y
@@ -29,10 +30,10 @@ class Creature:
     def changeCoords(self,x,y):
         self.x, self.y = x,y
         
-    def wander(self, x:int, y:int):
-        new_x = x + self.rng.choice([-1, 0, 1])
-        new_y = y + self.rng.choice([-1, 0, 1])
-        return "Aimless Wander", "movement", new_x, new_y
+    def wander(self):
+        self.x = self.x + 1
+        self.y = self.y + 0
+        return "Aimless Wander", "movement", self.x, self.y
     
     def __str__(self):
         response = ""

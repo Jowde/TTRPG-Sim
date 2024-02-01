@@ -11,20 +11,18 @@ class World:
     def generate(self) -> list:
         world_template = self.world_template_generate()
         world = self.tile_placer(world_template)
+        print(len(world))
         return world
 
     def get_valid_spawn(self):
         while True:
+            '''
             x, y = int(self.rng.random() * len(self.info)), int(self.rng.random() * len(self.info))
             if self.info[y][x].name == "grass" and not self.info[y][x].isOccupied():
                 return x, y
+            ''';
+            return 36, 36
 
-    def move_creature(self, x, y, creature):
-        if self.info[y][x].name == "grass" and not self.info[y][x].isOccupied():
-            self.info[y][x].add_creature(creature)
-            self.info[creature.y][creature.x].remove_creature()
-            return True
-        return False
 
     def world_template_generate(self) -> list:
         world_template = self.rng.uniform(low=0, high=1.0, size=(self.size // 8, self.size // 8))
